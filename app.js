@@ -4,6 +4,7 @@ const storageKeys = {
   auth: "hrdock-authenticated",
   user: "hrdock-user",
   flash: "hrdock-flash-message",
+  staticUsers: "hrdock-static-users",
   draftPrefix: "hrdock-survey-draft-",
   resultPrefix: "hrdock-survey-result-"
 };
@@ -86,6 +87,188 @@ function persistAuthState(isAuthenticated, user = null) {
   } else {
     localStorage.removeItem(storageKeys.user);
   }
+}
+
+function isStaticDemoMode() {
+  return (
+    window.location.protocol === "file:" ||
+    window.location.hostname.endsWith("github.io")
+  );
+}
+
+function getStaticUsers() {
+  const raw = localStorage.getItem(storageKeys.staticUsers);
+  if (!raw) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (_error) {
+    return [];
+  }
+}
+
+function saveStaticUsers(users) {
+  localStorage.setItem(storageKeys.staticUsers, JSON.stringify(users));
+}
+
+function buildStaticResponse(ok, status, payload) {
+  return {
+    response: {
+      ok,
+      status
+    },
+    result: payload
+  };
+}
+
+function handleStaticApi(url, payload) {
+  const email = String(payload?.email || "").trim().toLowerCase();
+  const users = getStaticUsers();
+
+  if (url === "/api/login") {
+    if (email === "admin@hrdock.jp" && payload.password === "hrdock-demo") {
+      return buildStaticResponse(true, 200, {
+        message: "ログインしました。デモ版で表示しています。",
+        user: { name: "Demo Admin", email, company: "HR dock survey" }
+      });
+    }
+
+    const user = users.find((item) => item.email === email);
+    if (!user || user.password !== payload.password) {
+      return buildStaticResponse(false, 401, {
+        message: "認証情報が正しくありません。"
+      });
+    }
+
+    return buildStaticResponse(true, 200, {
+      message: "ログインしました。",
+      user: {
+        name: user.name,
+        email: user.email,
+        company: user.company
+      }
+    });
+  }
+
+  if (url === "/api/signup") {
+    const name = String(payload?.name || "").trim();
+    const company = String(payload?.company || "").trim();
+    const password = String(payload?.password || "");
+    const passwordConfirm = String(payload?.passwordConfirm || "");
+
+    if (!name || !email || !company || !password || !passwordConfirm) {
+      return buildStaticResponse(false, 400, {
+        message: "すべての項目を入力してください。"
+      });
+    }
+
+    if (password.length < 8) {
+      return buildStaticResponse(false, 400, {
+        message: "パスワードは8文字以上で入力してください。"
+      });
+    }
+
+    if (password !== passwordConfirm) {
+      return buildStaticResponse(false, 400, {
+        message: "確認用パスワードが一致しません。"
+      });
+    }
+
+    if (users.some((item) => item.email === email) || email === "admin@hrdock.jp") {
+      return buildStaticResponse(false, 409, {
+        message: "そのメールアドレスはすでに使用されています。"
+      });
+    }
+
+    users.push({
+      id: crypto.randomUUID?.() || `user-${Date.now()}`,
+      name,
+      email,
+      company,
+      password
+    });
+    saveStaticUsers(users);
+
+    return buildStaticResponse(true, 201, {
+      message: "会員登録が完了しました。",
+      user: { name, email, company }
+    });
+  }
+
+  if (url === "/api/profile") {
+    const currentEmail = String(payload?.currentEmail || "").trim().toLowerCase();
+    const name = String(payload?.name || "").trim();
+    const nextEmail = String(payload?.email || "").trim().toLowerCase();
+    const company = String(payload?.company || "").trim();
+    const currentPassword = String(payload?.currentPassword || "");
+    const newPassword = String(payload?.newPassword || "");
+    const newPasswordConfirm = String(payload?.newPasswordConfirm || "");
+    const wantsPasswordChange = Boolean(currentPassword || newPassword || newPasswordConfirm);
+
+    if (!name || !nextEmail || !company) {
+      return buildStaticResponse(false, 400, {
+        message: "すべての項目を入力してください。"
+      });
+    }
+
+    const userIndex = users.findIndex((item) => item.email === currentEmail);
+    if (userIndex === -1) {
+      return buildStaticResponse(false, 404, {
+        message: "更新対象のユーザーが見つかりません。"
+      });
+    }
+
+    if (currentEmail !== nextEmail && users.some((item, index) => index !== userIndex && item.email === nextEmail)) {
+      return buildStaticResponse(false, 409, {
+        message: "そのメールアドレスはすでに使用されています。"
+      });
+    }
+
+    if (wantsPasswordChange) {
+      if (!currentPassword || !newPassword || !newPasswordConfirm) {
+        return buildStaticResponse(false, 400, {
+          message: "パスワード変更時は3項目すべて入力してください。"
+        });
+      }
+      if (users[userIndex].password !== currentPassword) {
+        return buildStaticResponse(false, 401, {
+          message: "現在のパスワードが正しくありません。"
+        });
+      }
+      if (newPassword.length < 8) {
+        return buildStaticResponse(false, 400, {
+          message: "新しいパスワードは8文字以上で入力してください。"
+        });
+      }
+      if (newPassword !== newPasswordConfirm) {
+        return buildStaticResponse(false, 400, {
+          message: "新しいパスワードの確認が一致しません。"
+        });
+      }
+      users[userIndex].password = newPassword;
+    }
+
+    users[userIndex].name = name;
+    users[userIndex].email = nextEmail;
+    users[userIndex].company = company;
+    saveStaticUsers(users);
+
+    return buildStaticResponse(true, 200, {
+      message: wantsPasswordChange
+        ? "登録情報とパスワードを更新しました。"
+        : "登録情報を更新しました。",
+      user: {
+        name,
+        email: nextEmail,
+        company
+      }
+    });
+  }
+
+  return buildStaticResponse(false, 404, { message: "Not Found" });
 }
 
 function getStoredUser() {
@@ -276,13 +459,21 @@ function closeHistoryModal() {
 }
 
 async function postJson(url, payload) {
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-  const result = await response.json();
-  return { response, result };
+  if (isStaticDemoMode()) {
+    return handleStaticApi(url, payload);
+  }
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const result = await response.json();
+    return { response, result };
+  } catch (_error) {
+    return handleStaticApi(url, payload);
+  }
 }
 
 function applyFlashMessage() {

@@ -21,6 +21,33 @@ node server.js
 
 GitHub のブラウザアップロードでも可能ですが、ファイル数が多い場合は GitHub Desktop か Git コマンドの方が安定します。
 
+## GitHub Pages で今すぐ見せる場合
+
+今のコードは GitHub Pages 上では静的デモモードで動きます。
+このモードでは、会員登録・ログイン・プロフィール更新はブラウザの `localStorage` に保存されます。
+
+### 設定手順
+
+1. GitHub のリポジトリ画面を開きます。
+2. `Settings` を開きます。
+3. 左メニューの `Pages` を開きます。
+4. `Build and deployment` の `Source` で `Deploy from a branch` を選びます。
+5. Branch は `main`、Folder は `/ (root)` を選びます。
+6. `Save` を押します。
+7. 数分待って公開URLを開きます。
+
+### 使い方
+
+- デモログイン: `admin@hrdock.jp / hrdock-demo`
+- 新規会員登録: ブラウザ内だけに保存されます
+- 回答結果: ブラウザ内の `localStorage` に保存されます
+
+### 注意
+
+- GitHub Pages 版は「見せる用」の静的デモです。
+- 別ブラウザや別端末とは会員情報を共有しません。
+- 本番公開や複数人利用には Railway / Render などのサーバー版が必要です。
+
 ## Railway で公開する場合
 
 このプロジェクトは `server.js` で Node サーバーを起動し、`./data/users.json` にユーザー情報を保存します。
