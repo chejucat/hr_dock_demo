@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Survey Result | HR dock survey</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #173630;
+        --ink-soft: #5f7771;
+        --paper: rgba(255, 255, 255, 0.96);
+        --paper-soft: #f7fbfa;
+        --line: rgba(96, 181, 165, 0.18);
+        --brand: #73d0bf;
+        --brand-deep: #2d7d70;
+        --brand-pale: #e7f7f3;
+        --shadow: 0 24px 64px rgba(2, 8, 18, 0.24);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Noto Sans JP", sans-serif;
+        color: var(--ink);
+        background: linear-gradient(180deg, #091826 0%, #0b1f2f 36%, #102739 100%);
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(rgba(4, 12, 20, 0.34), rgba(6, 16, 28, 0.44)),
+          url("./assets/reference-bg.png");
+        background-repeat: no-repeat, no-repeat;
+        background-size: 100% 340px, cover;
+        background-position: top center, center -245px;
+        opacity: 0.95;
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(180deg, rgba(7, 18, 29, 0.06) 0, rgba(8, 21, 34, 0.18) 170px, rgba(10, 25, 39, 0.7) 300px, rgba(11, 31, 47, 0.95) 430px, #0b1f2f 100%);
+      }
+
+      .page {
+        position: relative;
+        z-index: 1;
+        width: min(1040px, calc(100vw - 28px));
+        margin: 0 auto;
+        padding: 28px 0 52px;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(122, 211, 194, 0.12);
+        color: #effffb;
+        font-size: 1rem;
+        font-weight: 700;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      .header h1 {
+        margin-top: 14px;
+        color: #eafff9;
+        font-size: clamp(2rem, 4vw, 2.8rem);
+        line-height: 1.08;
+      }
+
+      .header p {
+        margin-top: 10px;
+        color: #e4f3ef;
+        line-height: 1.8;
+      }
+
+      .ghost-button {
+        padding: 12px 16px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        background: white;
+        color: var(--ink);
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      .panel {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+      }
+
+      .summary-panel,
+      .table-panel {
+        padding: 24px;
+      }
+
+      .meta-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 18px;
+      }
+
+      .meta-card {
+        padding: 16px;
+        border-radius: 20px;
+        background: var(--paper-soft);
+        border: 1px solid rgba(96, 181, 165, 0.14);
+      }
+
+      .meta-card span {
+        display: block;
+        color: var(--ink-soft);
+        font-size: 0.84rem;
+        font-weight: 700;
+      }
+
+      .meta-card strong {
+        display: block;
+        margin-top: 8px;
+        color: var(--ink);
+        font-size: 1.04rem;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 18px;
+      }
+
+      th,
+      td {
+        padding: 14px 12px;
+        border-top: 1px solid rgba(96, 181, 165, 0.12);
+        text-align: left;
+      }
+
+      thead th {
+        border-top: 0;
+        color: var(--ink);
+        background: #eef8f5;
+      }
+
+      tbody td {
+        color: var(--ink-soft);
+      }
+
+      tbody td:first-child {
+        color: var(--ink);
+        font-weight: 700;
+      }
+
+      .note {
+        margin-top: 16px;
+        color: var(--ink-soft);
+        line-height: 1.8;
+      }
+
+      .score-bar-track {
+        position: relative;
+        width: 100%;
+        height: 16px;
+        border-radius: 999px;
+        background: #e8f4f1;
+        overflow: hidden;
+      }
+
+      .score-bar-track::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 2px;
+        background: #d92d20;
+        opacity: 0.95;
+        z-index: 2;
+      }
+
+      .score-bar-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #73d0bf, #2d7d70);
+        z-index: 1;
+      }
+
+      .score-bar-value {
+        display: block;
+        margin-top: 8px;
+        color: var(--ink);
+        font-weight: 700;
+      }
+
+      @media (max-width: 720px) {
+        .page {
+          width: min(100%, calc(100vw - 24px));
+          padding: 18px 0 34px;
+        }
+
+        .header {
+          flex-direction: column;
+        }
+
+        .meta-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="header">
+        <div>
+          <div class="pill">HR dock survey / Result</div>
+          <h1 id="resultTitle">アンケート結果</h1>
+          <p id="resultDescription">因子ごとの平均値と標準化得点を表示します。</p>
+        </div>
+        <button class="ghost-button" id="backButton" type="button">一覧へ戻る</button>
+      </header>
+
+      <section class="panel summary-panel">
+        <h2 style="color: #173630;">結果サマリー</h2>
+        <div class="meta-grid">
+          <article class="meta-card">
+            <span>回答完了日時</span>
+            <strong id="completedAt">-</strong>
+          </article>
+          <article class="meta-card">
+            <span>回答済み項目数</span>
+            <strong id="answeredCount">-</strong>
+          </article>
+          <article class="meta-card">
+            <span>尺度数</span>
+            <strong id="factorCount">-</strong>
+          </article>
+          <article class="meta-card">
+            <span>組織貢献度</span>
+            <strong id="organizationalContribution">-</strong>
+          </article>
+          <article class="meta-card">
+            <span>組織親和性</span>
+            <strong id="organizationalAffinity">-</strong>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel table-panel" style="margin-top: 18px;">
+        <h2 style="color: #173630;">因子別スコア</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>因子</th>
+              <th>平均値</th>
+              <th>偏差値</th>
+              <th>備考</th>
+            </tr>
+          </thead>
+          <tbody id="resultTableBody"></tbody>
+        </table>
+        <p class="note">リテンション志向は反転得点化後の平均値を表示しています。偏差値は、標準化得点をもとに `10 × z + 50` で換算しています。</p>
+      </section>
+    </main>
+
+    <script type="module" src="./result.js"></script>
+  </body>
+</html>

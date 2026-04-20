@@ -1,0 +1,921 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HR dock survey</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #173630;
+        --ink-soft: #58726c;
+        --paper: #ffffff;
+        --paper-soft: #f7fbfa;
+        --line: rgba(96, 181, 165, 0.18);
+        --brand: #73d0bf;
+        --brand-deep: #2d7d70;
+        --brand-pale: #e7f7f3;
+        --danger: #b42318;
+        --shadow: 0 24px 64px rgba(2, 8, 18, 0.24);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Noto Sans JP", sans-serif;
+        color: var(--ink);
+        background: linear-gradient(180deg, #091826 0%, #0b1f2f 36%, #102739 100%);
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(rgba(4, 12, 20, 0.34), rgba(6, 16, 28, 0.44)),
+          url("./assets/reference-bg.png");
+        background-repeat: no-repeat, no-repeat;
+        background-size: 100% 340px, cover;
+        background-position: top center, center -245px;
+        opacity: 0.95;
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background: linear-gradient(180deg, rgba(7, 18, 29, 0.06) 0, rgba(8, 21, 34, 0.18) 170px, rgba(10, 25, 39, 0.7) 300px, rgba(11, 31, 47, 0.95) 430px, #0b1f2f 100%);
+      }
+
+      button,
+      input,
+      textarea {
+        font: inherit;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      .panel {
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+      }
+
+      .login-shell {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 28px 24px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .login-layout {
+        width: min(680px, 100%);
+        display: grid;
+        gap: 18px;
+      }
+
+      .welcome-panel {
+        padding: 10px 12px 6px;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+        text-align: center;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        margin-top: 14px;
+        color: #7ad3c2;
+        font-size: clamp(2.8rem, 5vw, 4.4rem);
+        line-height: 0.98;
+        letter-spacing: -0.03em;
+        text-shadow: 0 10px 28px rgba(122, 211, 194, 0.18);
+      }
+
+      .hero-subtitle {
+        margin-top: 14px;
+        color: #ebfffb;
+        font-family: "M PLUS Rounded 1c", "Arial Rounded MT Bold", Arial, sans-serif;
+        font-size: clamp(1rem, 1.8vw, 1.25rem);
+        font-weight: 700;
+      }
+
+      .title-accent {
+        width: 116px;
+        height: 10px;
+        margin: 14px auto 0;
+        position: relative;
+      }
+
+      .title-accent::before,
+      .title-accent::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 999px;
+      }
+
+      .title-accent::before {
+        top: 4px;
+        width: 116px;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(122, 211, 194, 0.95), transparent);
+      }
+
+      .title-accent::after {
+        top: 0;
+        width: 12px;
+        height: 12px;
+        background: #bdf4e8;
+        box-shadow: 0 0 0 6px rgba(189, 244, 232, 0.16);
+      }
+
+      .login-panel {
+        max-width: 460px;
+        margin: 0 auto;
+        padding: 24px;
+        border-radius: 24px;
+      }
+
+      .auth-view.hidden {
+        display: none;
+      }
+
+      .login-form {
+        margin-top: 22px;
+      }
+
+      .field {
+        margin-top: 14px;
+      }
+
+      .field label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 700;
+      }
+
+      .field input,
+      .survey-textarea {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        background: white;
+        color: var(--ink);
+      }
+
+      .survey-textarea {
+        min-height: 118px;
+        resize: vertical;
+      }
+
+      .login-button,
+      .primary-button {
+        width: 100%;
+        margin-top: 18px;
+        padding: 12px 16px;
+        border: 0;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--brand), #78cabb);
+        color: white;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      .secondary-button {
+        padding: 12px 16px;
+        border-radius: 999px;
+        border: 1px solid rgba(103, 199, 181, 0.34);
+        background: rgba(103, 199, 181, 0.12);
+        color: var(--brand-deep);
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      .signup-button {
+        width: 100%;
+        margin-top: 10px;
+      }
+
+      .inline-link {
+        display: inline-flex;
+        margin-top: 14px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: #4da796;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .status {
+        min-height: 24px;
+        margin-top: 14px;
+        font-size: 0.92rem;
+        font-weight: 700;
+      }
+
+      .status.error {
+        color: var(--danger);
+      }
+
+      .status.success {
+        color: #2d7d70;
+      }
+
+      .demo-box {
+        margin-top: 16px;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: #f6fcfa;
+        border: 1px solid rgba(67, 125, 112, 0.12);
+      }
+
+      .demo-box strong {
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      .demo-box p + p {
+        margin-top: 6px;
+      }
+
+      .app-shell {
+        width: min(1120px, calc(100vw - 28px));
+        margin: 0 auto;
+        padding: 28px 0 52px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .app-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        gap: 16px;
+        margin-bottom: 22px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(122, 211, 194, 0.12);
+        color: #effffb;
+        font-size: 1.3rem;
+        font-weight: 700;
+      }
+
+      .app-header-copy h2 {
+        margin-top: 14px;
+        color: #eafff9;
+        font-size: clamp(2rem, 4vw, 3rem);
+        line-height: 1.08;
+      }
+
+      .logout-button {
+        padding: 12px 18px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        background: white;
+        color: var(--ink);
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      .respondent-layout {
+        display: grid;
+        grid-template-columns: 1.12fr 0.88fr;
+        gap: 18px;
+        align-items: start;
+      }
+
+      .respondent-panel,
+      .survey-panel {
+        padding: 24px;
+      }
+
+      .profile-panel {
+        background: linear-gradient(180deg, rgba(227, 246, 241, 0.96) 0%, rgba(214, 241, 233, 0.94) 100%);
+        border: 1px solid rgba(96, 181, 165, 0.24);
+      }
+
+      .respondent-panel h3,
+      .survey-panel h3,
+      .survey-panel h4 {
+        color: var(--ink);
+      }
+
+      .respondent-panel p,
+      .survey-panel p,
+      .survey-panel li,
+      .survey-panel label,
+      .respondent-panel li {
+        color: var(--ink-soft);
+        line-height: 1.8;
+      }
+
+      .survey-list,
+      .summary-list {
+        display: grid;
+        gap: 14px;
+        margin-top: 18px;
+      }
+
+      .survey-list {
+        max-height: 146px;
+        overflow-y: auto;
+        padding-right: 6px;
+        gap: 10px;
+      }
+
+      .survey-list::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .survey-list::-webkit-scrollbar-thumb {
+        background: rgba(96, 181, 165, 0.28);
+        border-radius: 999px;
+      }
+
+      .survey-card,
+      .summary-card,
+      .question-card {
+        padding: 18px;
+        border-radius: 22px;
+        background: var(--paper-soft);
+        border: 1px solid rgba(96, 181, 165, 0.14);
+      }
+
+      .survey-card.active {
+        background: linear-gradient(180deg, #f6fcfb 0%, #eef9f6 100%);
+        border-color: rgba(96, 181, 165, 0.34);
+        box-shadow: inset 0 0 0 1px rgba(96, 181, 165, 0.08);
+      }
+
+      .survey-card {
+        padding: 8px 12px;
+        border-radius: 16px;
+      }
+
+      .survey-card-top,
+      .question-head,
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: start;
+      }
+
+      .survey-tag,
+      .status-tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--brand-pale);
+        color: var(--brand-deep);
+        font-size: 0.8rem;
+        font-weight: 700;
+      }
+
+      .survey-card h4,
+      .summary-card h4,
+      .question-card h4 {
+        margin-top: 10px;
+        font-size: 1.08rem;
+        color: var(--ink);
+      }
+
+      .survey-card h4 {
+        margin-top: 0;
+        font-size: 1rem;
+      }
+
+      .survey-title-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .survey-title-row h4 {
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.92rem;
+        line-height: 1.35;
+      }
+
+      .survey-name-button {
+        flex: 1;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--ink);
+        font-weight: 700;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .survey-name-button:hover {
+        color: var(--brand-deep);
+      }
+
+      .list-stack {
+        display: grid;
+        gap: 18px;
+      }
+
+      .detail-preview {
+        padding: 22px;
+      }
+
+      .detail-preview-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        gap: 14px;
+      }
+
+      .detail-preview p {
+        color: var(--ink-soft);
+        line-height: 1.8;
+      }
+
+      .detail-preview-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+      }
+
+      .ghost-button {
+        padding: 12px 16px;
+        border-radius: 999px;
+        border: 1px solid rgba(96, 181, 165, 0.18);
+        background: white;
+        color: var(--ink);
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .profile-grid {
+        display: grid;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .profile-item {
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.74);
+        border: 1px solid rgba(96, 181, 165, 0.14);
+      }
+
+      .profile-item span {
+        display: block;
+        font-size: 0.82rem;
+        color: var(--ink-soft);
+        font-weight: 700;
+      }
+
+      .profile-item strong {
+        display: block;
+        margin-top: 6px;
+        color: var(--ink);
+        font-size: 1rem;
+      }
+
+      .profile-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+      }
+
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 30;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: rgba(4, 12, 20, 0.58);
+        backdrop-filter: blur(8px);
+      }
+
+      .modal-panel {
+        width: min(560px, 100%);
+        padding: 24px;
+      }
+
+      .modal-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        gap: 16px;
+      }
+
+      .modal-head p {
+        margin-top: 8px;
+        color: var(--ink-soft);
+        line-height: 1.8;
+      }
+
+      .modal-close {
+        min-width: 44px;
+        min-height: 44px;
+        border-radius: 999px;
+        border: 1px solid rgba(96, 181, 165, 0.18);
+        background: white;
+        color: var(--ink);
+        font-size: 1.2rem;
+        cursor: pointer;
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      .history-list {
+        display: grid;
+        gap: 12px;
+        margin-top: 22px;
+        max-height: 320px;
+        overflow-y: auto;
+        padding-right: 4px;
+      }
+
+      .history-item {
+        padding: 16px 18px;
+        border-radius: 18px;
+        background: var(--paper-soft);
+        border: 1px solid rgba(96, 181, 165, 0.14);
+      }
+
+      .history-item-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        gap: 12px;
+      }
+
+      .history-item h4 {
+        font-size: 1rem;
+        color: var(--ink);
+      }
+
+      .history-item p {
+        margin-top: 8px;
+        color: var(--ink-soft);
+        line-height: 1.7;
+      }
+
+      .history-empty {
+        padding: 20px;
+        border-radius: 18px;
+        background: var(--paper-soft);
+        border: 1px dashed rgba(96, 181, 165, 0.2);
+        color: var(--ink-soft);
+      }
+
+      @media (max-width: 960px) {
+        .respondent-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .app-header {
+          flex-direction: column;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .login-layout,
+        .app-shell {
+          width: min(100%, calc(100vw - 24px));
+        }
+
+        h1,
+        .hero-subtitle {
+          white-space: normal;
+        }
+
+        .survey-card-top,
+        .question-head,
+        .section-head,
+        .progress-row {
+          flex-direction: column;
+          align-items: start;
+        }
+
+        .login-shell {
+          padding: 18px 12px 20px;
+        }
+
+        .app-shell {
+          padding: 18px 0 34px;
+        }
+
+        .respondent-panel,
+        .detail-preview,
+        .login-panel {
+          padding: 18px;
+          border-radius: 22px;
+        }
+
+        .pill {
+          font-size: 1rem;
+          line-height: 1.4;
+        }
+
+        .app-header-copy h2 {
+          margin-top: 10px;
+          font-size: 1.6rem;
+        }
+
+        .section-head h3,
+        .detail-preview h3 {
+          font-size: 1.2rem;
+        }
+
+        .top-actions,
+        .profile-actions,
+        .detail-preview-actions {
+          width: 100%;
+        }
+
+        .logout-button,
+        .modal-actions button,
+        .profile-actions button,
+        .detail-preview-actions button {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .modal-overlay {
+          padding: 12px;
+        }
+
+        .modal-panel {
+          padding: 18px;
+          border-radius: 22px;
+        }
+
+        .modal-head,
+        .modal-actions {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .survey-list {
+          max-height: 198px;
+        }
+
+        .survey-title-row {
+          gap: 8px;
+        }
+
+        .survey-title-row h4 {
+          font-size: 0.88rem;
+        }
+
+        .status-tag,
+        .survey-tag {
+          font-size: 0.76rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <section class="login-shell" id="loginView">
+      <div class="login-layout">
+        <article class="panel welcome-panel">
+          <h1>HR dock survey</h1>
+          <div class="title-accent" aria-hidden="true"></div>
+          <p class="hero-subtitle">不透明な時代に、確かな羅針盤を</p>
+        </article>
+
+        <aside class="panel login-panel">
+          <section class="auth-view" id="loginAuthView">
+            <h2>ログイン</h2>
+            <form class="login-form" id="loginForm">
+              <div class="field">
+                <label for="emailInput">メールアドレス</label>
+                <input id="emailInput" name="email" type="email" placeholder="example@hrdock.jp" autocomplete="username" />
+              </div>
+              <div class="field">
+                <label for="passwordInput">パスワード</label>
+                <input id="passwordInput" name="password" type="password" placeholder="8文字以上を想定" autocomplete="current-password" />
+              </div>
+              <button class="login-button" type="submit">ログイン</button>
+              <button class="secondary-button signup-button" id="openSignupButton" type="button">会員登録</button>
+              <div class="status" id="loginStatus" aria-live="polite"></div>
+            </form>
+            <div class="demo-box">
+              <strong>デモ用ログイン</strong>
+              <p>メール: admin@hrdock.jp</p>
+              <p>パスワード: hrdock-demo</p>
+            </div>
+          </section>
+
+          <section class="auth-view hidden" id="signupAuthView">
+            <h2>会員登録</h2>
+            <form class="login-form" id="signupForm">
+              <div class="field">
+                <label for="signupNameInput">お名前</label>
+                <input id="signupNameInput" name="name" type="text" placeholder="例: 山田 花子" autocomplete="name" />
+              </div>
+              <div class="field">
+                <label for="signupEmailInput">メールアドレス</label>
+                <input id="signupEmailInput" name="email" type="email" placeholder="example@hrdock.jp" autocomplete="email" />
+              </div>
+              <div class="field">
+                <label for="signupCompanyInput">会社名</label>
+                <input id="signupCompanyInput" name="company" type="text" placeholder="例: 株式会社HRdock" autocomplete="organization" />
+              </div>
+              <div class="field">
+                <label for="signupPasswordInput">パスワード</label>
+                <input id="signupPasswordInput" name="password" type="password" placeholder="8文字以上を想定" autocomplete="new-password" />
+              </div>
+              <div class="field">
+                <label for="signupPasswordConfirmInput">パスワード確認</label>
+                <input id="signupPasswordConfirmInput" name="passwordConfirm" type="password" placeholder="もう一度入力してください" autocomplete="new-password" />
+              </div>
+              <button class="login-button" type="submit">登録する</button>
+              <button class="inline-link" id="backToLoginButton" type="button">ログインへ戻る</button>
+              <div class="status" id="signupStatus" aria-live="polite"></div>
+            </form>
+          </section>
+        </aside>
+      </div>
+    </section>
+
+    <main class="app-shell hidden" id="appView">
+      <header class="app-header">
+        <div class="app-header-copy">
+          <div class="pill">HR dock survey / Respondent portal</div>
+        </div>
+        <button class="logout-button" id="logoutButton" type="button">ログアウト</button>
+      </header>
+
+      <section class="respondent-layout">
+        <section class="panel respondent-panel profile-panel">
+          <div class="section-head">
+            <div>
+              <h3>ログイン情報</h3>
+              <p>現在ログインしているアカウント情報です。</p>
+            </div>
+          </div>
+          <div class="profile-grid">
+            <article class="profile-item">
+              <span>ログインID</span>
+              <strong id="profileUserId">USR-001</strong>
+            </article>
+            <article class="profile-item">
+              <span>メールアドレス</span>
+              <strong id="profileEmail">admin@hrdock.jp</strong>
+            </article>
+            <article class="profile-item">
+              <span>登録名</span>
+              <strong id="profileName">Demo Admin</strong>
+            </article>
+            <article class="profile-item">
+              <span>所属</span>
+              <strong id="profileCompany">HR dock survey</strong>
+            </article>
+          </div>
+          <div class="profile-actions">
+            <button class="secondary-button" id="editProfileButton" type="button">登録情報を編集</button>
+            <button class="ghost-button" id="openHistoryButton" type="button">回答履歴を見る</button>
+          </div>
+        </section>
+
+        <div class="list-stack">
+          <section class="panel respondent-panel">
+            <div class="section-head">
+              <div>
+                <h3>アンケート一覧</h3>
+              </div>
+              <span class="status-tag" id="surveyCountTag">3件</span>
+            </div>
+            <div class="survey-list" id="surveyList"></div>
+          </section>
+
+          <section class="panel detail-preview">
+            <div class="detail-preview-head">
+              <div>
+                <span class="survey-tag">アンケート詳細</span>
+                <h3 id="listDetailTitle" style="margin-top: 10px;">新入社員エンゲージメント調査</h3>
+              </div>
+            </div>
+            <p id="listDetailDescription" style="margin-top: 12px;">選択したアンケートの概要をここに表示します。</p>
+            <div class="detail-preview-actions">
+              <button class="secondary-button" id="previewAnswerButton" type="button">回答</button>
+              <button class="ghost-button" id="previewResumeButton" type="button">続きから回答</button>
+              <button class="ghost-button" id="previewResultButton" type="button">結果を見る</button>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <div class="status" id="surveyStatus" aria-live="polite"></div>
+    </main>
+
+    <section class="modal-overlay hidden" id="profileModal" aria-hidden="true">
+      <div class="panel modal-panel">
+        <div class="modal-head">
+          <div>
+            <h3>登録者情報を編集</h3>
+            <p>表示名、メールアドレス、所属情報を更新できます。</p>
+          </div>
+          <button class="modal-close" id="closeProfileModalButton" type="button" aria-label="閉じる">×</button>
+        </div>
+
+        <form class="login-form" id="profileForm">
+          <div class="field">
+            <label for="profileEditNameInput">登録名</label>
+            <input id="profileEditNameInput" name="name" type="text" placeholder="例: 山田 花子" autocomplete="name" />
+          </div>
+          <div class="field">
+            <label for="profileEditEmailInput">メールアドレス</label>
+            <input id="profileEditEmailInput" name="email" type="email" placeholder="example@hrdock.jp" autocomplete="email" />
+          </div>
+          <div class="field">
+            <label for="profileEditCompanyInput">所属</label>
+            <input id="profileEditCompanyInput" name="company" type="text" placeholder="例: HR dock survey" autocomplete="organization" />
+          </div>
+          <div class="field">
+            <label for="profileCurrentPasswordInput">現在のパスワード</label>
+            <input id="profileCurrentPasswordInput" name="currentPassword" type="password" placeholder="変更時のみ入力" autocomplete="current-password" />
+          </div>
+          <div class="field">
+            <label for="profileNewPasswordInput">新しいパスワード</label>
+            <input id="profileNewPasswordInput" name="newPassword" type="password" placeholder="8文字以上で入力" autocomplete="new-password" />
+          </div>
+          <div class="field">
+            <label for="profileNewPasswordConfirmInput">新しいパスワードの確認</label>
+            <input id="profileNewPasswordConfirmInput" name="newPasswordConfirm" type="password" placeholder="もう一度入力してください" autocomplete="new-password" />
+          </div>
+          <div class="status" id="profileStatus" aria-live="polite"></div>
+          <div class="modal-actions">
+            <button class="ghost-button" id="cancelProfileModalButton" type="button">キャンセル</button>
+            <button class="secondary-button" id="saveProfileButton" type="submit">保存する</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="modal-overlay hidden" id="historyModal" aria-hidden="true">
+      <div class="panel modal-panel">
+        <div class="modal-head">
+          <div>
+            <h3>回答履歴</h3>
+          </div>
+          <button class="modal-close" id="closeHistoryModalButton" type="button" aria-label="閉じる">×</button>
+        </div>
+
+        <div class="history-list" id="historyList"></div>
+
+        <div class="modal-actions">
+          <button class="ghost-button" id="closeHistoryFooterButton" type="button">閉じる</button>
+        </div>
+      </div>
+    </section>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

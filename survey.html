@@ -1,0 +1,467 @@
+﻿<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Survey Answer | HR dock survey</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #173630;
+        --ink-soft: #5f7771;
+        --paper: rgba(255, 255, 255, 0.96);
+        --paper-soft: #f7fbfa;
+        --line: rgba(96, 181, 165, 0.18);
+        --brand: #73d0bf;
+        --brand-deep: #2d7d70;
+        --brand-pale: #e7f7f3;
+        --shadow: 0 24px 64px rgba(2, 8, 18, 0.24);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Noto Sans JP", sans-serif;
+        color: var(--ink);
+        background: linear-gradient(180deg, #091826 0%, #0b1f2f 36%, #102739 100%);
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(rgba(4, 12, 20, 0.34), rgba(6, 16, 28, 0.44)),
+          url("./assets/reference-bg.png");
+        background-repeat: no-repeat, no-repeat;
+        background-size: 100% 340px, cover;
+        background-position: top center, center -245px;
+        opacity: 0.95;
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(180deg, rgba(7, 18, 29, 0.06) 0, rgba(8, 21, 34, 0.18) 170px, rgba(10, 25, 39, 0.7) 300px, rgba(11, 31, 47, 0.95) 430px, #0b1f2f 100%);
+      }
+
+      button,
+      textarea,
+      input {
+        font: inherit;
+      }
+
+      .page {
+        position: relative;
+        z-index: 1;
+        width: min(1120px, calc(100vw - 28px));
+        margin: 0 auto;
+        padding: 28px 0 52px;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(122, 211, 194, 0.12);
+        color: #effffb;
+        font-size: 1rem;
+        font-weight: 700;
+      }
+
+      .header h1 {
+        margin: 14px 0 0;
+        color: #eafff9;
+        font-size: clamp(2rem, 4vw, 2.8rem);
+        line-height: 1.08;
+      }
+
+      .header p {
+        margin: 10px 0 0;
+        color: #e4f3ef;
+        line-height: 1.8;
+      }
+
+      .ghost-button,
+      .primary-button,
+      .secondary-button {
+        padding: 12px 16px;
+        border-radius: 999px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      .ghost-button {
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        background: white;
+        color: var(--ink);
+      }
+
+      .secondary-button {
+        border: 1px solid rgba(96, 181, 165, 0.24);
+        background: rgba(103, 199, 181, 0.12);
+        color: var(--brand-deep);
+      }
+
+      .primary-button {
+        border: 0;
+        background: linear-gradient(135deg, var(--brand), #78cabb);
+        color: white;
+      }
+
+      .panel {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+      }
+
+      .intro,
+      .form-panel {
+        padding: 24px;
+      }
+
+      .intro-grid {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 18px;
+        align-items: start;
+      }
+
+      .tag,
+      .section-tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--brand-pale);
+        color: var(--brand-deep);
+        font-size: 0.82rem;
+        font-weight: 700;
+      }
+
+      .meta-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 14px;
+        color: var(--ink-soft);
+      }
+
+      .progress-bar {
+        width: min(300px, 100%);
+        height: 10px;
+        margin-top: 10px;
+        border-radius: 999px;
+        background: #e8f4f1;
+        overflow: hidden;
+      }
+
+      .progress-bar span {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: linear-gradient(135deg, var(--brand), #5dbca8);
+      }
+
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 18px;
+      }
+
+      .section-note {
+        color: var(--ink-soft);
+        line-height: 1.8;
+      }
+
+      .likert-shell {
+        overflow-x: auto;
+        border: 1px solid rgba(96, 181, 165, 0.14);
+        border-radius: 22px;
+      }
+
+      .likert-table {
+        width: 100%;
+        min-width: 760px;
+        border-collapse: collapse;
+        background: var(--paper-soft);
+      }
+
+      .likert-table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: #eef8f5;
+        color: var(--ink);
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-align: center;
+        padding: 14px 10px;
+        border-bottom: 1px solid rgba(96, 181, 165, 0.14);
+      }
+
+      .likert-table thead th:first-child {
+        text-align: left;
+        width: 42%;
+        min-width: 260px;
+      }
+
+      .likert-table tbody tr + tr td {
+        border-top: 1px solid rgba(96, 181, 165, 0.12);
+      }
+
+      .likert-table td {
+        padding: 14px 12px;
+        vertical-align: middle;
+        background: #fbfdfc;
+      }
+
+      .likert-table td:first-child {
+        color: var(--ink);
+        font-weight: 500;
+        line-height: 1.7;
+      }
+
+      .likert-choice {
+        text-align: center;
+      }
+
+      .likert-choice input {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--brand-deep);
+        cursor: pointer;
+      }
+
+      .freeform-list {
+        display: grid;
+        gap: 14px;
+        margin-top: 18px;
+      }
+
+      .question-card {
+        padding: 18px;
+        border-radius: 22px;
+        background: #f7fbfa;
+        border: 1px solid rgba(96, 181, 165, 0.14);
+      }
+
+      .question-card h3 {
+        margin: 10px 0 0;
+        color: var(--ink);
+        font-size: 1.08rem;
+      }
+
+      .survey-textarea {
+        width: 100%;
+        min-height: 130px;
+        margin-top: 14px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(96, 181, 165, 0.18);
+        resize: vertical;
+      }
+
+      .pager {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      .pager-info {
+        color: var(--ink-soft);
+        font-weight: 700;
+      }
+
+      .pager-actions,
+      .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .actions {
+        margin-top: 20px;
+      }
+
+      .status {
+        min-height: 24px;
+        margin-top: 14px;
+        color: var(--brand-deep);
+        font-weight: 700;
+      }
+
+      .mobile-likert-list {
+        display: none;
+      }
+
+      .mobile-likert-card {
+        padding: 16px;
+        border-radius: 20px;
+        background: #f7fbfa;
+        border: 1px solid rgba(96, 181, 165, 0.14);
+      }
+
+      .mobile-choice-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .mobile-choice-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: #ffffff;
+        border: 1px solid rgba(96, 181, 165, 0.16);
+        color: var(--ink-soft);
+      }
+
+      @media (max-width: 820px) {
+        .page {
+          width: min(100%, calc(100vw - 24px));
+          padding: 18px 0 34px;
+        }
+
+        .header,
+        .intro-grid,
+        .section-head,
+        .pager {
+          grid-template-columns: 1fr;
+          flex-direction: column;
+          align-items: start;
+        }
+
+        .intro,
+        .form-panel {
+          padding: 18px;
+        }
+
+        .header h1 {
+          font-size: 1.7rem;
+        }
+
+        .ghost-button,
+        .secondary-button,
+        .primary-button {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .likert-shell {
+          display: none;
+        }
+
+        .mobile-likert-list {
+          display: grid;
+          gap: 12px;
+        }
+
+        .mobile-choice-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="header">
+        <div>
+          <div class="pill">HR dock survey / Answer</div>
+          <h1 id="surveyTitle">アンケート回答</h1>
+          <p id="surveyDescription">選択したアンケートに回答するページです。</p>
+          <p id="surveyInstruction" style="margin-top: 10px;">回答に関する説明をここに表示します。</p>
+        </div>
+        <button class="ghost-button" id="backButton" type="button">一覧へ戻る</button>
+      </header>
+
+      <section class="panel intro">
+        <div class="intro-grid">
+          <div>
+            <span class="tag" id="surveyModeTag">回答開始</span>
+            <div class="meta-list">
+              <span id="surveyDue">回答日: -</span>
+              <span id="surveyTime">想定時間: -</span>
+              <span id="surveyProgressText">進捗: -</span>
+            </div>
+          </div>
+          <div style="width: min(320px, 100%);">
+            <div style="display: flex; justify-content: space-between; gap: 12px; color: #58726c;">
+              <strong style="color: #173630;">回答進捗</strong>
+              <span id="progressLabel">0%</span>
+            </div>
+            <div class="progress-bar">
+              <span id="progressBar"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel form-panel" style="margin-top: 18px;">
+        <div class="section-head">
+          <div>
+            <span class="section-tag" id="sectionTag">Section 1</span>
+            <h2 id="sectionTitle" style="margin-top: 10px; color: #173630;">尺度設問</h2>
+          </div>
+        </div>
+
+        <div class="likert-shell">
+          <table class="likert-table" aria-label="likert questions">
+            <thead>
+              <tr id="likertHeadRow"></tr>
+            </thead>
+            <tbody id="likertBody"></tbody>
+          </table>
+        </div>
+
+        <div class="mobile-likert-list" id="mobileLikertList"></div>
+        <div class="freeform-list" id="freeformList"></div>
+
+        <div class="pager">
+          <div class="pager-info" id="pagerInfo">Section 1 / 1</div>
+          <div class="pager-actions">
+            <button class="ghost-button" id="prevSectionButton" type="button">前のセクション</button>
+            <button class="secondary-button" id="nextSectionButton" type="button">次のセクション</button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="secondary-button" id="saveButton" type="button">下書き保存</button>
+          <button class="primary-button" id="submitButton" type="button">回答を送信する</button>
+        </div>
+        <div class="status" id="statusMessage"></div>
+      </section>
+    </main>
+
+    <script type="module" src="./survey.js"></script>
+  </body>
+</html>
